@@ -89,7 +89,7 @@ form.addEventListener('submit' , function(e){
         setupCanvas();
         drawGrid();
         plotCurve(a,b,c);
-        
+
     } catch(err){
         errorMsg.textContent = err.message;
     }
@@ -165,6 +165,7 @@ function drawGrid(){
         const {py} = toPixel(0,y);
         ctx.beginPath();
         ctx.moveTo(0,py);
+        ctx.lineTo(rect.width,py);
         ctx.stroke();
 
         if(Math.abs(y)> 1e-9){
@@ -207,9 +208,9 @@ xMax += padX;
 const samples = 50;
 let yMin = Infinity;
 let yMax = -Infinity;
-for (let i = 0, i<=samples;i++){
-    const x = xMin (i/samples)*(xMax - xMin);
-    const y = a *x+b* x+c;
+for (let i = 0; i<=samples;i++){
+    const x = xMin + (i/samples)*(xMax - xMin);
+    const y = a*x*x+b*x+c;
     if(y<yMin) yMin = y;
     if(y>yMax) yMax = y;
 }
@@ -221,31 +222,76 @@ const padY = Math.max(spanY*0.15,2);
 yMin -= padY;
 yMax += padY;
 
-return {xMin,Xmax,yMin,yMax};
+return {xMin,xMax,yMin,yMax};
 
 }
 
 
-function plotCurve(a,b,c){
-    const rect = canvas.getBoundingClientRect();
-    const steps = 400;
+// function plotCurve(a,b,c){
+//     const rect = canvas.getBoundingClientRect();
+//     const steps = 400;
+
+//     ctx.strokeStyle = '#e0592a';
+//     ctx.lineWidth = 2.5;
+//     ctx.beginPath();
+
+//     for(let i = 0; i <= steps; i++){
+//         const x = view.xMin + (i/steps)*(view.xMax - view.xMin);
+//         const y = a*x*x+b*x+c;
+//         const {px,py} = toPixel(x,y);
+
+//         if(i === 0)ctx.moveTo(px,py);
+//         else ctx.lineTo(px,py);
+//     }
+
+//     ctx.stroke();
+// }
+let currentAnimationId = null;
+
+function plotCurve(a, b, c) {
+  const steps = 400;
+  const duration = 900; // ms
+
+  const points = [];
+  for (let i = 0; i <= steps; i++) {
+    const x = view.xMin + (i / steps) * (view.xMax - view.xMin);
+    const y = a * x * x + b * x + c;
+    points.push(toPixel(x, y));
+  }
+
+  if (currentAnimationId !== null) {
+    cancelAnimationFrame(currentAnimationId);
+    currentAnimationId = null;
+  }
+
+  const startTime = performance.now();
+
+  function frame(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const pointCount = Math.max(2, Math.floor(progress * points.length));
+
+    drawGrid();
 
     ctx.strokeStyle = '#e0592a';
     ctx.lineWidth = 2.5;
     ctx.beginPath();
-
-    for(let i = 0; i <= steps; i++){
-        const x = view.xMin + (i/steps)*(view.xMax - view.yMin);
-        const y = a*x*x+b*x+c;
-        const {px,py} = toPixel(x,y);
-
-        if(i === 0)ctx.moveTo(px,py);
-        else ctx.lineTo(px,py);
+    for (let i = 0; i < pointCount; i++) {
+      const { px, py } = points[i];
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
     }
-
     ctx.stroke();
-}
 
+    if (progress < 1) {
+      currentAnimationId = requestAnimationFrame(frame);
+    } else {
+      currentAnimationId = null;
+    }
+  }
+
+  currentAnimationId = requestAnimationFrame(frame);
+}
 function redraw(){
     setupCanvas();
     drawGrid();
