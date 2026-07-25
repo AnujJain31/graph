@@ -181,7 +181,25 @@ function drawGrid(){
     ctx.stroke();
 }
 
+function plotCurve(a,b,c){
+    const rect = canvas.getBoundingClientRect();
+    const steps = 400;
 
+    ctx.strokeStyle = '#e0592a';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+
+    for(let i = 0; i <= steps; i++){
+        const x = view.xMin + (i/steps)*(view.xMax - view.yMin);
+        const y = a*x*x+b*x+c;
+        const {px,py} = toPixel(x,y);
+
+        if(i === 0)ctx.moveTo(px,py);
+        else ctx.lineTo(px,py);
+    }
+
+    ctx.stroke();
+}
 
 function redraw(){
     setupCanvas();
