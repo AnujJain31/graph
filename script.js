@@ -176,11 +176,25 @@ function animateToEquation(a, b, c) {
   currentAnimationId = requestAnimationFrame(frame);
 }
 
-
-
 function drawGrid(){
     const rect = canvas.getBoundingClientRect();
     ctx.clearRect(0,0,rect.width,rect.height);
+
+    // Work out the actual visible math-coordinate range,
+    // including the letterboxed margins left/right or top/bottom
+    const scaleX = rect.width / (view.xMax - view.xMin);
+    const scaleY = rect.height / (view.yMax - view.yMin);
+    const scale = Math.min(scaleX, scaleY);
+
+    const usedWidth = (view.xMax - view.xMin) * scale;
+    const usedHeight = (view.yMax - view.yMin) * scale;
+    const offsetX = (rect.width - usedWidth) / 2;
+    const offsetY = (rect.height - usedHeight) / 2;
+
+    const visibleXMin = view.xMin - offsetX / scale;
+    const visibleXMax = view.xMax + offsetX / scale;
+    const visibleYMin = view.yMin - offsetY / scale;
+    const visibleYMax = view.yMax + offsetY / scale;
 
     const stepX = niceStep(view.xMax - view.xMin);
     const stepY = niceStep(view.yMax - view.yMin);
@@ -188,10 +202,11 @@ function drawGrid(){
     ctx.font = '10px system-ui'
     ctx.fillStyle = 'rgba(255,255,255,0.45)';
 
+    // Vertical grid lines — now spans the full visible width
     ctx.strokeStyle = 'rgba(255,255,255,0.12)';
     ctx.lineWidth = 1;
-    const StartX = Math.ceil(view.xMin / stepX)*stepX;
-    for (let x = StartX; x<=view.xMax; x += stepX){
+    const StartX = Math.ceil(visibleXMin / stepX)*stepX;
+    for (let x = StartX; x<=visibleXMax; x += stepX){
         const{px} = toPixel(x,0);
         ctx.beginPath();
         ctx.moveTo(px,0);
@@ -200,12 +215,13 @@ function drawGrid(){
 
         if(Math.abs(x) > 1e-9){
             const{py} = toPixel(0,0);
-            ctx.fillText(x.toFixed(stepX<1?1:0), px + 3 , Math.min(rect.height - 4, py + 12));            
+            ctx.fillText(x.toFixed(stepX<1?1:0), px + 3 , Math.min(rect.height - 4, py + 12));
         }
     }
 
-    const startY = Math.ceil(view.yMin/stepY)*stepY;
-    for (let y = startY; y <= view.yMax; y+= stepY){
+    // Horizontal grid lines — now spans the full visible height
+    const startY = Math.ceil(visibleYMin/stepY)*stepY;
+    for (let y = startY; y <= visibleYMax; y+= stepY){
         const {py} = toPixel(0,y);
         ctx.beginPath();
         ctx.moveTo(0,py);
@@ -215,20 +231,81 @@ function drawGrid(){
         if(Math.abs(y)> 1e-9){
             const{px} = toPixel(0,0);
             ctx.fillText(y.toFixed(stepY < 1?1:0), Math.max(4,px+3), py-3);
-
         }
     }
 
-    ctx.strokeStyle = 'rgba(255,255,255,0.6)';
-    ctx.lineWidth = 1.5;
-
+    // Axes, with a glow
     const origin = toPixel(0,0);
+
+    ctx.save();
+    ctx.shadowColor = 'rgba(255, 255, 255, 0.9)';
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
 
     ctx.beginPath();
     ctx.moveTo(0,origin.py);
     ctx.lineTo(rect.width,origin.py);
     ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(origin.px, 0);
+    ctx.lineTo(origin.px, rect.height);
+    ctx.stroke();
+
+    ctx.restore();
 }
+
+// function drawGrid(){
+//     const rect = canvas.getBoundingClientRect();
+//     ctx.clearRect(0,0,rect.width,rect.height);
+
+//     const stepX = niceStep(view.xMax - view.xMin);
+//     const stepY = niceStep(view.yMax - view.yMin);
+
+//     ctx.font = '10px system-ui'
+//     ctx.fillStyle = 'rgba(255,255,255,0.45)';
+
+//     ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+//     ctx.lineWidth = 1;
+//     const StartX = Math.ceil(view.xMin / stepX)*stepX;
+//     for (let x = StartX; x<=view.xMax; x += stepX){
+//         const{px} = toPixel(x,0);
+//         ctx.beginPath();
+//         ctx.moveTo(px,0);
+//         ctx.lineTo(px,rect.height);
+//         ctx.stroke();
+
+//         if(Math.abs(x) > 1e-9){
+//             const{py} = toPixel(0,0);
+//             ctx.fillText(x.toFixed(stepX<1?1:0), px + 3 , Math.min(rect.height - 4, py + 12));            
+//         }
+//     }
+
+//     const startY = Math.ceil(view.yMin/stepY)*stepY;
+//     for (let y = startY; y <= view.yMax; y+= stepY){
+//         const {py} = toPixel(0,y);
+//         ctx.beginPath();
+//         ctx.moveTo(0,py);
+//         ctx.lineTo(rect.width,py);
+//         ctx.stroke();
+
+//         if(Math.abs(y)> 1e-9){
+//             const{px} = toPixel(0,0);
+//             ctx.fillText(y.toFixed(stepY < 1?1:0), Math.max(4,px+3), py-3);
+
+//         }
+//     }
+
+//     ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+//     ctx.lineWidth = 1.5;
+
+//     const origin = toPixel(0,0);
+
+//     ctx.beginPath();
+//     ctx.moveTo(origin.px,0);
+//     ctx.lineTo(origin.px,rect.height);
+//     ctx.stroke();
+// }
 
 
 
@@ -270,36 +347,36 @@ function computeView(a, b, c) {
 
 
 
-let xMin =  Math.min(...xs);
-let xMax = Math.max(...xs);
+// let xMin =  Math.min(...xs);
+// let xMax = Math.max(...xs);
 
-let spanX = xMax - xMin;
-if (spanX < 1e-6) spanX = 4;
+// let spanX = xMax - xMin;
+// if (spanX < 1e-6) spanX = 4;
 
-const padX = Math.max(spanX*0.4,2);
-xMin -= padX;
-xMax += padX;
+// const padX = Math.max(spanX*0.4,2);
+// xMin -= padX;
+// xMax += padX;
 
-const samples = 50;
-let yMin = Infinity;
-let yMax = -Infinity;
-for (let i = 0; i<=samples;i++){
-    const x = xMin + (i/samples)*(xMax - xMin);
-    const y = a*x*x+b*x+c;
-    if(y<yMin) yMin = y;
-    if(y>yMax) yMax = y;
-}
+// const samples = 50;
+// let yMin = Infinity;
+// let yMax = -Infinity;
+// for (let i = 0; i<=samples;i++){
+//     const x = xMin + (i/samples)*(xMax - xMin);
+//     const y = a*x*x+b*x+c;
+//     if(y<yMin) yMin = y;
+//     if(y>yMax) yMax = y;
+// }
 
-let spanY = yMax - yMin;
-if (spanY < 1e-6)spanY = 4;
+// let spanY = yMax - yMin;
+// if (spanY < 1e-6)spanY = 4;
 
-const padY = Math.max(spanY*0.15,2);
-yMin -= padY;
-yMax += padY;
+// const padY = Math.max(spanY*0.15,2);
+// yMin -= padY;
+// yMax += padY;
 
-return {xMin,xMax,yMin,yMax};
+// return {xMin,xMax,yMin,yMax};
 
-}
+// }
 
 function plotCurve(a, b, c) {
   const steps = 400;
