@@ -180,6 +180,47 @@ function drawGrid(){
     ctx.lineTo(rect.width,origin.py);
     ctx.stroke();
 }
+function computeValue(a,b,c){
+    const vx = -b/(2*a);
+    const D = b*b-4*a*c;
+
+    const xs = [vx]
+    if(D >= 0){
+        const sqrtD = Math.sqrt(D);
+        xs.push((-b -sqrtD)/ (2*a),(-b + sqrtD)/(2*a));
+}
+
+let xMin =  Math.min(...xs);
+let xMax = Math.max(...xs);
+
+let spanX = xMax - xMin;
+if (spanX < 1e-6) spanX = 4;
+
+const padX = Math.max(spanX*0.4,2);
+xMin -= padX;
+xMax += padX;
+
+const samples = 50;
+let yMin = Infinity;
+let yMax = -Infinity;
+for (let i = 0, i<=samples;i++){
+    const x = xMin (i/samples)*(xMax - xMin);
+    const y = a *x+b* x+c;
+    if(y<yMin) yMin = y;
+    if(y>yMax) yMax = y;
+}
+
+let spanY = yMax - yMin;
+if (spanY < 1e-6)spanY = 4;
+
+const padY = Math.max(spanY*0.15,2);
+yMin -= padY;
+yMax += padY;
+
+return {xMin,Xmax,yMin,yMax};
+
+}
+
 
 function plotCurve(a,b,c){
     const rect = canvas.getBoundingClientRect();
