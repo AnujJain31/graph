@@ -99,7 +99,7 @@ const canvas = document.getElementById('graphCanvas');
 const ctx = canvas.getContext('2d');
 
 
-let view = {xMin:-10,xMax:10,yMin:-10,yMax:10};
+let view = {xMin:-100,xMax:100,yMin:-100,yMax:100};
 
 function setupCanvas(){
     const drp = window.devicePixelRatio || 1;

@@ -8,7 +8,7 @@ body{
     background: #0a1628;
     min-height: 100vh;
     font-family:'Courier New', Courier, monospace;
-    color: #e5edf5;
+    color:white;
     overflow-x:hidden;
 }
 
@@ -25,12 +25,12 @@ body{
 .app-title{
     font-size: 50px;
     font-weight: 600;
-    color: #222;
+    color: white ;
 }
 
 .app-subtitle{
     font-size: 20px;
-    color: #777;
+    color: white;
     margin-top: 4px;
 }
 
@@ -61,7 +61,7 @@ body{
     background: transparent;
     border: none;
     outline:none;
-    color:#222;
+    color:white;
     font-size: medium;
     min-width:0px;
 }
