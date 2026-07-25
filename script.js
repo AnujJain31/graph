@@ -84,11 +84,8 @@ form.addEventListener('submit' , function(e){
 
     try{
         const {a ,b, c} = parseQuadratic(input.value);
-
-        view = computeValue(a,b,c);
-        setupCanvas();
-        drawGrid();
         plotCurve(a,b,c);
+        animateToEquation(a,b,c);
 
     } catch(err){
         errorMsg.textContent = err.message;
@@ -113,11 +110,20 @@ function setupCanvas(){
     ctx.scale(drp,drp);
 }
 
-function toPixel(x,y){
-    const rect = canvas.getBoundingClientRect();
-    const px = ((x-view.xMin)/(view.xMax - view.xMin))*rect.width;
-    const py = rect.height - ((y - view.yMin)/(view.yMax - view.yMin))*rect.height;
-    return{px,py};
+function toPixel(x, y) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = rect.width / (view.xMax - view.xMin);
+  const scaleY = rect.height / (view.yMax - view.yMin);
+  const scale = Math.min(scaleX, scaleY); 
+
+  const usedWidth = (view.xMax - view.xMin) * scale;
+  const usedHeight = (view.yMax - view.yMin) * scale;
+  const offsetX = (rect.width - usedWidth) / 2;
+  const offsetY = (rect.height - usedHeight) / 2;
+
+  const px = offsetX + (x - view.xMin) * scale;
+  const py = rect.height - offsetY - (y - view.yMin) * scale;
+  return { px, py };
 }
 
 function niceStep(span){
@@ -133,6 +139,44 @@ function niceStep(span){
 
     return step;
 }
+
+
+function animateToEquation(a, b, c) {
+  const startView = { ...view };
+  const targetView = computeView(a, b, c);
+  const duration = 700;
+  const startTime = performance.now();
+
+  if (currentAnimationId !== null) {
+    cancelAnimationFrame(currentAnimationId);
+    currentAnimationId = null;
+  }
+
+  function frame(now) {
+    const t = Math.min((now - startTime) / duration, 1);
+    const eased = 1 - Math.pow(1 - t, 3); // ease-out
+
+    view = {
+      xMin: startView.xMin + (targetView.xMin - startView.xMin) * eased,
+      xMax: startView.xMax + (targetView.xMax - startView.xMax) * eased,
+      yMin: startView.yMin + (targetView.yMin - startView.yMin) * eased,
+      yMax: startView.yMax + (targetView.yMax - startView.yMax) * eased,
+    };
+
+    drawGrid();
+    plotCurve(a, b, c);
+
+    if (t < 1) {
+      currentAnimationId = requestAnimationFrame(frame);
+    } else {
+      currentAnimationId = null;
+    }
+  }
+
+  currentAnimationId = requestAnimationFrame(frame);
+}
+
+
 
 function drawGrid(){
     const rect = canvas.getBoundingClientRect();
@@ -185,15 +229,46 @@ function drawGrid(){
     ctx.lineTo(rect.width,origin.py);
     ctx.stroke();
 }
-function computeValue(a,b,c){
-    const vx = -b/(2*a);
-    const D = b*b-4*a*c;
 
-    const xs = [vx]
-    if(D >= 0){
-        const sqrtD = Math.sqrt(D);
-        xs.push((-b -sqrtD)/ (2*a),(-b + sqrtD)/(2*a));
+
+
+function computeView(a, b, c) {
+  const vx = -b / (2 * a);
+  const D = b * b - 4 * a * c;
+
+  const xs = [vx, 0]; // 0 included so origin never leaves view
+  if (D >= 0) {
+    const sqrtD = Math.sqrt(D);
+    xs.push((-b - sqrtD) / (2 * a), (-b + sqrtD) / (2 * a));
+  }
+
+  let xMin = Math.min(...xs);
+  let xMax = Math.max(...xs);
+  let spanX = xMax - xMin;
+  if (spanX < 1e-6) spanX = 4;
+  const padX = Math.max(spanX * 0.35, 2);
+  xMin -= padX;
+  xMax += padX;
+
+  const samples = 50;
+  let yMin = 0; // 0 included here too
+  let yMax = 0;
+  for (let i = 0; i <= samples; i++) {
+    const x = xMin + (i / samples) * (xMax - xMin);
+    const y = a * x * x + b * x + c;
+    if (y < yMin) yMin = y;
+    if (y > yMax) yMax = y;
+  }
+  let spanY = yMax - yMin;
+  if (spanY < 1e-6) spanY = 4;
+  const padY = Math.max(spanY * 0.2, 2);
+  yMin -= padY;
+  yMax += padY;
+
+  return { xMin, xMax, yMin, yMax };
 }
+
+
 
 let xMin =  Math.min(...xs);
 let xMax = Math.max(...xs);
@@ -226,26 +301,21 @@ return {xMin,xMax,yMin,yMax};
 
 }
 
+function plotCurve(a, b, c) {
+  const steps = 400;
+  ctx.strokeStyle = '#ffb454';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
 
-// function plotCurve(a,b,c){
-//     const rect = canvas.getBoundingClientRect();
-//     const steps = 400;
-
-//     ctx.strokeStyle = '#e0592a';
-//     ctx.lineWidth = 2.5;
-//     ctx.beginPath();
-
-//     for(let i = 0; i <= steps; i++){
-//         const x = view.xMin + (i/steps)*(view.xMax - view.xMin);
-//         const y = a*x*x+b*x+c;
-//         const {px,py} = toPixel(x,y);
-
-//         if(i === 0)ctx.moveTo(px,py);
-//         else ctx.lineTo(px,py);
-//     }
-
-//     ctx.stroke();
-// }
+  for (let i = 0; i <= steps; i++) {
+    const x = view.xMin + (i / steps) * (view.xMax - view.xMin);
+    const y = a * x * x + b * x + c;
+    const { px, py } = toPixel(x, y);
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+}
 let currentAnimationId = null;
 
 function plotCurve(a, b, c) {
