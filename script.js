@@ -1,14 +1,10 @@
-document.getElementById('equationForm').addEventListener('submit',function(e){
-    e.preventDefault();
-    console.log('submitted:', document.getElementById('equationInput').value);
-});
 
 function parseSide(expr){
     if(expr === '') expr = '0';
 
     const tokens = expr.match(/[+-]?[^+-]+/g);
     if (!tokens) {
-        throw new error ('could not read that equation');
+        throw new Error ('could not read that equation');
     }
 
     const coeffs = {0:0,1:0,2:0};
@@ -27,9 +23,9 @@ function parseTerm(token){
 
     if(token.includes('x^2')){
         degree = 2;
-        cpefStr = token.replace('x^2' , '');
+        coefStr = token.replace('x^2' , '');
     }else if(token.includes('x')){
-        dgeree = 1;
+        degree = 1;
         coefStr = token.replace('x','');
     }else{
         degree = 0;
@@ -51,11 +47,11 @@ function parseQuadratic(raw){
     if(!s) {
         throw new Error('enter an equation first.')
     }
-    s = s.replace(/2/g, '^2');
+    s = s.replace(/\u00b2/g, '^2');
     s = s.replace(/^y=/, '').replace(/^f\(x\)=/,'');
 
     let leftStr = s;
-    let leftStr = '0';
+    let rightStr = '0';
 
     if (s.includes('=')){
         const parts = s.split('=');
@@ -93,3 +89,26 @@ form.addEventListener('submit' , function(e){
         errorMsg.textContent = err.message;
     }
 });
+
+const canvas = document.getElementById('graphCanvas');
+const ctx = canvas.getContext('2d');
+
+
+let view = {xMin:-10,xMax:10,yMin:-10,yMax:10};
+
+function setupCanvas(){
+    const drp = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+
+
+    canvas.width = rect.width*drp;
+    canvas.height = rect.height*drp;
+
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.scale(drp,drp);
+}
+
+function toPixel(x,y){
+    const rect = canvas.getBoundingClientRect();
+    const px = 
+}
