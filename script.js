@@ -209,8 +209,8 @@ function drawGrid(){
     const visibleYMin = view.yMin - offsetY / scale;
     const visibleYMax = view.yMax + offsetY / scale;
 
-    const stepX = niceStep(view.xMax - view.xMin);
-    const stepY = niceStep(view.yMax - view.yMin);
+    const stepX = niceStep(visibleXMax - visibleXMin);
+    const stepY = niceStep(visibleYMax - visibleYMin);
 
     ctx.font = '10px system-ui'
     ctx.fillStyle = 'rgba(255,255,255,0.45)';
@@ -308,50 +308,6 @@ function computeView(a, b, c) {
 
 let currentAnimationId = null;
 
-// function plotCurve(a, b, c) {
-//   const steps = 400;
-//   const duration = 1800; // ms
-
-//   const points = [];
-//   for (let i = 0; i <= steps; i++) {
-//     const x = view.xMin + (i / steps) * (view.xMax - view.xMin);
-//     const y = a * x * x + b * x + c;
-//     points.push(toPixel(x, y));
-//   }
-
-//   if (currentAnimationId !== null) {
-//     cancelAnimationFrame(currentAnimationId);
-//     currentAnimationId = null;
-//   }
-
-//   const startTime = performance.now();
-
-//   function frame(now) {
-//     const elapsed = now - startTime;
-//     const progress = Math.min(elapsed / duration, 1);
-//     const pointCount = Math.max(2, Math.floor(progress * points.length));
-
-//     drawGrid();
-
-//     ctx.strokeStyle = '';
-//     ctx.lineWidth = 2.5;
-//     ctx.beginPath();
-//     for (let i = 0; i < pointCount; i++) {
-//       const { px, py } = points[i];
-//       if (i === 0) ctx.moveTo(px, py);
-//       else ctx.lineTo(px, py);
-//     }
-//     ctx.stroke();
-
-//     if (progress < 1) {
-//       currentAnimationId = requestAnimationFrame(frame);
-//     } else {
-//       currentAnimationId = null;
-//     }
-//   }
-
-//   currentAnimationId = requestAnimationFrame(frame);
-// }
 function redraw(){
     setupCanvas();
     drawGrid();
