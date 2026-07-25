@@ -250,7 +250,7 @@ let currentAnimationId = null;
 
 function plotCurve(a, b, c) {
   const steps = 400;
-  const duration = 900; // ms
+  const duration = 1800; // ms
 
   const points = [];
   for (let i = 0; i <= steps; i++) {
