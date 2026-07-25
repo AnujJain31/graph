@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>graph maker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app">
+        <header class="app-header">
+            <h1 class="app-title">y = ax² + bx + c</h1>
+            <p class="app-subtitle">plot any qudratic equation</p>
+        </header>
+
+        <form action="" class="input-bar" id="equationForm">
+            <span class="input-prefix"> f(x) =</span>
+            <input type="text" id="equationInput" class="equation-input" placeholder="e.g. x² - 3x + 2" autocomplete="off" spellcheck="false">
+            <button type="submit" class="plot-btn">PLOT</button>
+        </form>
+
+        <p class="error-msg" id="errorMsg"></p>
+
+        <div class="graph-wrap">
+            <canvas id="graphCanvas"></canvas>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
