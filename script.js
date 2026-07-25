@@ -84,8 +84,12 @@ form.addEventListener('submit' , function(e){
 
     try{
         const {a ,b, c} = parseQuadratic(input.value);
-       drawGrid();
+
+        view = computeValue(a,b,c);
+        setupCanvas();
+        drawGrid();
         plotCurve(a,b,c);
+        
     } catch(err){
         errorMsg.textContent = err.message;
     }
