@@ -142,9 +142,9 @@ function drawGrid(){
     const stepY = niceStep(view.yMax - view.yMin);
 
     ctx.font = '10px system-ui'
-    ctx.fillStyle = '#999'
+    ctx.fillStyle = 'rgba(255,255,255,0.45)';
 
-    ctx.strokeStyle = '#eee';
+    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
     ctx.lineWidth = 1;
     const StartX = Math.ceil(view.xMin / stepX)*stepX;
     for (let x = StartX; x<=view.xMax; x += stepX){
@@ -175,7 +175,7 @@ function drawGrid(){
         }
     }
 
-    ctx.strokeStyle = '#333';
+    ctx.strokeStyle = 'rgba(255,255,255,0.6)';
     ctx.lineWidth = 1.5;
 
     const origin = toPixel(0,0);
@@ -273,7 +273,7 @@ function plotCurve(a, b, c) {
 
     drawGrid();
 
-    ctx.strokeStyle = '#e0592a';
+    ctx.strokeStyle = '92a';
     ctx.lineWidth = 2.5;
     ctx.beginPath();
     for (let i = 0; i < pointCount; i++) {

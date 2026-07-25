@@ -5,13 +5,11 @@
 }
 
 body{
-    background: #f7f7f5;
+    background: #0a1628;
     min-height: 100vh;
     font-family:'Courier New', Courier, monospace;
-    color: #222;
-    display: flex;
-    justify-content:center ;
-    padding: 48px 20px;
+    color: #e5edf5;
+    overflow-x:hidden;
 }
 
 .app{
@@ -40,8 +38,8 @@ body{
     display: flex;
     align-items: center;
     gap: 10px;
-    background: #fff;
-    border: 1px solid #ddd;
+    background:rgba(15,28,48,0.85);
+    border: 1px solid rgba(255,255,255,0.15);
     border-radius: 8px;
     padding: 10px 14px ;
 
@@ -91,7 +89,7 @@ body{
 
  }
 
- .graph-wrap{
+ /* .graph-wrap{
     margin-top: 16px;
     background: #fff;
     border: 1px solid #ddd;
@@ -108,6 +106,21 @@ body{
    
 
 
+ } */
+
+ #graphCanvas{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100vw;
+    height:100vh;
+    display:block;
+    z-index: 0;
+ }
+
+ .app{
+    position :relative;
+    z-index:1;
  }
 
  @media(max-width:480px){
