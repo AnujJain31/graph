@@ -84,7 +84,8 @@ form.addEventListener('submit' , function(e){
 
     try{
         const {a ,b, c} = parseQuadratic(input.value);
-        console.log('parsed:' , {a,b,c});
+       drawGrid();
+        plotCurve(a,b,c);
     } catch(err){
         errorMsg.textContent = err.message;
     }
@@ -110,5 +111,82 @@ function setupCanvas(){
 
 function toPixel(x,y){
     const rect = canvas.getBoundingClientRect();
-    const px = 
+    const px = ((x-view.xMin)/(view.xMax - view.xMin))*rect.width;
+    const py = rect.height - ((y - view.yMin)/(view.yMax - view.yMin))*rect.height;
+    return{px,py};
 }
+
+function niceStep(span){
+    const rough = span/10;
+    const magnitude = Math.pow(10,Math.floor(Math.log10(rough)));
+    const residual = rough/magnitude;
+
+    let step;
+    if (residual>5) step = 10 * magnitude;
+    else if (residual>2) step = 5*magnitude;
+    else if (residual>1) step = 2*magnitude;
+    else step = magnitude;
+
+    return step;
+}
+
+function drawGrid(){
+    const rect = canvas.getBoundingClientRect();
+    ctx.clearRect(0,0,rect.width,rect.height);
+
+    const stepX = niceStep(view.xMax - view.xMin);
+    const stepY = niceStep(view.yMax - view.yMin);
+
+    ctx.font = '10px system-ui'
+    ctx.fillStyle = '#999'
+
+    ctx.strokeStyle = '#eee';
+    ctx.lineWidth = 1;
+    const StartX = Math.ceil(view.xMin / stepX)*stepX;
+    for (let x = StartX; x<=view.xMax; x += stepX){
+        const{px} = toPixel(x,0);
+        ctx.beginPath();
+        ctx.moveTo(px,0);
+        ctx.lineTo(px,rect.height);
+        ctx.stroke();
+
+        if(Math.abs(x) > 1e-9){
+            const{py} = toPixel(0,0);
+            ctx.fillText(x.toFixed(stepX<1?1:0), px + 3 , Math.min(rect.height - 4, py + 12));            
+        }
+    }
+
+    const startY = Math.ceil(view.yMin/stepY)*stepY;
+    for (let y = startY; y <= view.yMax; y+= stepY){
+        const {py} = toPixel(0,y);
+        ctx.beginPath();
+        ctx.moveTo(0,py);
+        ctx.stroke();
+
+        if(Math.abs(y)> 1e-9){
+            const{px} = toPixel(0,0);
+            ctx.fillText(y.toFixed(stepY < 1?1:0), Math.max(4,px+3), py-3);
+
+        }
+    }
+
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 1.5;
+
+    const origin = toPixel(0,0);
+
+    ctx.beginPath();
+    ctx.moveTo(0,origin.py);
+    ctx.lineTo(rect.width,origin.py);
+    ctx.stroke();
+}
+
+
+
+function redraw(){
+    setupCanvas();
+    drawGrid();
+}
+
+window.addEventListener('resize',redraw);
+redraw();
