@@ -1,4 +1,3 @@
-
 function parseSide(expr){
     if(expr === '') expr = '0';
 
