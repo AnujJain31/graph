@@ -1,0 +1,32 @@
+{
+  "name": "quadratic-grapher",
+  "version": "1.0.0",
+  "description": "Offline quadratic equation grapher",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build-win": "electron-builder --win portable"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.yourname.quadraticgrapher",
+    "productName": "Quadratic Grapher",
+    "files": [
+      "index.html",
+      "style.css",
+      "script.js",
+      "main.js"
+    ],
+    "win": {
+      "target": "portable"
+    }
+  },
+  "allowScripts": {
+    "electron@31.7.7": true
+  }
+}
