@@ -142,7 +142,7 @@ function niceStep(span){
 function animateToEquation(a, b, c) {
   const startView = { ...view };
   const targetView = computeView(a, b, c);
-  const duration = 1200; // ms — feel free to tweak
+  const duration = 1200; 
   const startTime = performance.now();
   const totalSteps = 400;
 
@@ -153,9 +153,9 @@ function animateToEquation(a, b, c) {
 
   function frame(now) {
     const t = Math.min((now - startTime) / duration, 1);
-    const eased = 1 - Math.pow(1 - t, 3); // ease-out, drives BOTH zoom and trace
+    const eased = 1 - Math.pow(1 - t, 3); 
 
-    // 1. Interpolate the view (zoom/pan)
+   
     view = {
       xMin: startView.xMin + (targetView.xMin - startView.xMin) * eased,
       xMax: startView.xMax + (targetView.xMax - startView.xMax) * eased,
@@ -165,8 +165,6 @@ function animateToEquation(a, b, c) {
 
     drawGrid();
 
-    // 2. Draw the curve up to the current progress, using the CURRENT
-    //    (mid-zoom) view, so the trace and the shift move together
     const pCount = Math.max(2, Math.floor(eased * totalSteps));
     ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 2.5;
