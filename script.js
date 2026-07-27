@@ -146,9 +146,9 @@ function animateToEquation(a, b, c) {
   const startTime = performance.now();
   const totalSteps = 400;
 
-  if (currentAnimationId !== null) {
-    cancelAnimationFrame(currentAnimationId);
-    currentAnimationId = null;
+  if (currentAnimId !== null) {
+    cancelAnimationFrame(currentAnimId);
+    currentAnimId = null;
   }
 
   function frame(now) {
@@ -167,11 +167,11 @@ function animateToEquation(a, b, c) {
 
     // 2. Draw the curve up to the current progress, using the CURRENT
     //    (mid-zoom) view, so the trace and the shift move together
-    const pointCount = Math.max(2, Math.floor(eased * totalSteps));
+    const pCount = Math.max(2, Math.floor(eased * totalSteps));
     ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 2.5;
     ctx.beginPath();
-    for (let i = 0; i <= pointCount; i++) {
+    for (let i = 0; i <= pCount; i++) {
       const x = view.xMin + (i / totalSteps) * (view.xMax - view.xMin);
       const y = a * x * x + b * x + c;
       const { px, py } = toPixel(x, y);
@@ -181,13 +181,13 @@ function animateToEquation(a, b, c) {
     ctx.stroke();
 
     if (t < 1) {
-      currentAnimationId = requestAnimationFrame(frame);
+      currentAnimId = requestAnimationFrame(frame);
     } else {
-      currentAnimationId = null;
+      currentAnimId = null;
     }
   }
 
-  currentAnimationId = requestAnimationFrame(frame);
+  currentAnimId = requestAnimationFrame(frame);
 }
 
 function drawGrid(){
@@ -203,13 +203,13 @@ function drawGrid(){
     const offsetX = (rect.width - usedWidth) / 2;
     const offsetY = (rect.height - usedHeight) / 2;
 
-    const visibleXMin = view.xMin - offsetX / scale;
-    const visibleXMax = view.xMax + offsetX / scale;
-    const visibleYMin = view.yMin - offsetY / scale;
-    const visibleYMax = view.yMax + offsetY / scale;
+    const visiXMin = view.xMin - offsetX / scale;
+    const visiXMax = view.xMax + offsetX / scale;
+    const visiYMin = view.yMin - offsetY / scale;
+    const visiYMax = view.yMax + offsetY / scale;
 
-    const stepX = niceStep(visibleXMax - visibleXMin);
-    const stepY = niceStep(visibleYMax - visibleYMin);
+    const stepX = niceStep(visiXMax - visiXMin);
+    const stepY = niceStep(visiYMax - visiYMin);
 
     ctx.font = '10px system-ui'
     ctx.fillStyle = 'rgba(255,255,255,0.45)';
@@ -217,8 +217,8 @@ function drawGrid(){
 
     ctx.strokeStyle = 'rgba(255,255,255,0.12)';
     ctx.lineWidth = 1;
-    const StartX = Math.ceil(visibleXMin / stepX)*stepX;
-    for (let x = StartX; x<=visibleXMax; x += stepX){
+    const StartX = Math.ceil(visiXMin / stepX)*stepX;
+    for (let x = StartX; x<=visiXMax; x += stepX){
         const{px} = toPixel(x,0);
         ctx.beginPath();
         ctx.moveTo(px,0);
@@ -232,8 +232,8 @@ function drawGrid(){
     }
 
     
-    const startY = Math.ceil(visibleYMin/stepY)*stepY;
-    for (let y = startY; y <= visibleYMax; y+= stepY){
+    const startY = Math.ceil(visiYMin/stepY)*stepY;
+    for (let y = startY; y <= visiYMax; y+= stepY){
         const {py} = toPixel(0,y);
         ctx.beginPath();
         ctx.moveTo(0,py);
@@ -286,11 +286,11 @@ function computeView(a, b, c) {
   xMin -= padX;
   xMax += padX;
 
-  const samples = 50;
+  const samp = 50;
   let yMin = 0; 
   let yMax = 0;
-  for (let i = 0; i <= samples; i++) {
-    const x = xMin + (i / samples) * (xMax - xMin);
+  for (let i = 0; i <= samp; i++) {
+    const x = xMin + (i / samp) * (xMax - xMin);
     const y = a * x * x + b * x + c;
     if (y < yMin) yMin = y;
     if (y > yMax) yMax = y;
@@ -305,7 +305,7 @@ function computeView(a, b, c) {
 }
 
 
-let currentAnimationId = null;
+let currentAnimId = null;
 
 function redraw(){
     setupCanvas();
