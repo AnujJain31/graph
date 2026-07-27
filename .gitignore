@@ -1,0 +1,30 @@
+# Node dependencies
+node_modules/
+
+# Build output
+/dist/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime files
+*.log
+
+# Electron builder artifacts
+*.exe
+*.yml
+*.zip
+*.7z
+*.rpm
+*.deb
+*.AppImage
+
+# Optional IDE files
+.vscode/
+.idea/
